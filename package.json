@@ -1,6 +1,6 @@
 {
   "name": "react-native-photo-compressor",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "React Native Turbo Modules that allow you to compress your photos by given URI",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
