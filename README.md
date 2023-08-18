@@ -12,6 +12,9 @@ or
 yarn add react-native-photo-compressor
 ```
 
+Don't forget to change `newArchEnabled` to `true` in *android/gradle.properties* and run `./gradlew generateCodegenArtifactsFromSchema
+` if needed.
+
 ## Usage
 
 
