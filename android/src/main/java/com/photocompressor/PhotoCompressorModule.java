@@ -17,7 +17,6 @@ import com.facebook.react.bridge.GuardedAsyncTask;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.UUID;
 
 @ReactModule(name = PhotoCompressorModule.NAME)
