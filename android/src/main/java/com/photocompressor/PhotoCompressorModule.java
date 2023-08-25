@@ -116,17 +116,21 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
 
         bitmap = MediaStore.Images.Media.getBitmap(mContext.getContentResolver(), imageUri);
 
-        String root = Environment.getExternalStorageDirectory().toString();
+        File cacheDir = mContext.getExternalCacheDir();
+
+        File folder = new File(cacheDir, "/RNPhotoCompressorImages/");
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
 
         String uniqueID = UUID.randomUUID().toString();
+        File fileName = new File(folder, "/" + uniqueID + ".jpeg");
 
-        FileOutputStream out = new FileOutputStream(root + "/" + uniqueID + ".jpeg");
-
+        FileOutputStream out = new FileOutputStream(String.valueOf(fileName));
         bitmap.compress(Bitmap.CompressFormat.JPEG, (int) mQuality, out);
-
         out.close();
 
-        mPromise.resolve("file://" + root + "/" + uniqueID + ".jpeg");
+        mPromise.resolve("file://" + String.valueOf(fileName));
       } catch (Exception e) {
         mPromise.reject(e);
       }
