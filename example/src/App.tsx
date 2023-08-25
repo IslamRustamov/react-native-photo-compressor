@@ -6,7 +6,6 @@ import {
   Text,
   Image,
   Button,
-  PermissionsAndroid,
 } from 'react-native';
 import { compressPhoto, getSizeInBytes } from 'react-native-photo-compressor';
 import { useState } from 'react';
@@ -17,33 +16,22 @@ export default function App() {
   const [compressedImage, setCompressedImage] = useState<string>();
 
   async function openCamera() {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-      {
-        title: 'Allow to write into external storage',
-        message: 'Please',
-        buttonNegative: 'Cancel',
-        buttonPositive: 'OK',
-      }
-    );
-    if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-      return;
-    }
     const response = await launchCamera({ mediaType: 'photo' });
 
     if (response.assets && response.assets[0]) {
       const photo = response.assets[0].uri;
+      const photoSize = await getSizeInBytes(photo!.replace('file://', ''));
       setImage(photo);
-      console.log(photo);
 
-      console.log(await getSizeInBytes(photo!.replace('file://', '')));
+      console.log({ photo });
+      console.log({ photoSize });
 
       const compressedPhoto = await compressPhoto(response.assets[0].uri!, 1);
-      console.log({ compressedPhoto });
-
+      const compressedPhotoSize = await getSizeInBytes(compressedPhoto.replace('file://', ''));
       setCompressedImage(compressedPhoto);
 
-      console.log(await getSizeInBytes(compressedPhoto.replace('file://', '')));
+      console.log({ compressedPhoto });
+      console.log({ compressedPhotoSize });
     }
   }
 
