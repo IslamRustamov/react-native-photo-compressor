@@ -77,7 +77,7 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
     @Override
     protected void doInBackgroundGuarded(Void... params) {
       try {
-        File file = new File(mUri);
+        File file = new File(mUri.replace("file://", ""));
 
         long fileSizeInBytes = file.length();
 
