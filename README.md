@@ -12,8 +12,21 @@ or
 yarn add react-native-photo-compressor
 ```
 
-Don't forget to change `newArchEnabled` to `true` in *android/gradle.properties* and run `./gradlew generateCodegenArtifactsFromSchema
-` if needed.
+### Android
+
+Android configuration requires to enable the New Architecture:
+
+1. Open the android/gradle.properties file
+2. Scroll down to the end of the file and switch the newArchEnabled property from false to true.
+
+### iOS
+
+```
+bundle install
+cd ios
+RCT_NEW_ARCH_ENABLED=1 bundle exec pod install
+```
+
 
 ## Usage
 
@@ -24,7 +37,7 @@ import { compressPhoto, getSizeInBytes } from 'react-native-photo-compressor';
 // ...
 
 const compressedPhoto = await compressPhoto('file://some/photo.png', 50);
-await getSizeInBytes('file://some/photo.png');
+const photoSize = await getSizeInBytes('file://some/photo.png');
 ```
 
 ## compressPhoto arguments
@@ -38,9 +51,9 @@ await getSizeInBytes('file://some/photo.png');
 ## Work in progress
 
 - [x] Implement turbo module for Android
+- [x] Implement turbo module for iOS
 - [ ] Refactor Android turbo module
 - [ ] Add more configuration for Android turbo module (like deleting photos, specific urls and etc.)
-- [ ] Implement turbo module for iOS
 
 ## Contributing
 
