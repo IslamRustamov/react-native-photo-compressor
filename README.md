@@ -24,7 +24,7 @@ import { compressPhoto, getSizeInBytes } from 'react-native-photo-compressor';
 // ...
 
 const compressedPhoto = await compressPhoto('file://some/photo.png', 50);
-await getSizeInBytes('some/photo.png');
+await getSizeInBytes('file://some/photo.png');
 ```
 
 ## compressPhoto arguments

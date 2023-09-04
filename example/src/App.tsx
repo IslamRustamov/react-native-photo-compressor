@@ -20,14 +20,14 @@ export default function App() {
 
     if (response.assets && response.assets[0]) {
       const photo = response.assets[0].uri;
-      const photoSize = await getSizeInBytes(photo!.replace('file://', ''));
+      const photoSize = await getSizeInBytes(photo!);
       setImage(photo);
 
       console.log({ photo });
       console.log({ photoSize });
 
-      const compressedPhoto = await compressPhoto(response.assets[0].uri!, 1);
-      const compressedPhotoSize = await getSizeInBytes(compressedPhoto.replace('file://', ''));
+      const compressedPhoto = await compressPhoto(photo!, 10);
+      const compressedPhotoSize = await getSizeInBytes(compressedPhoto);
       setCompressedImage(compressedPhoto);
 
       console.log({ compressedPhoto });
@@ -48,7 +48,7 @@ export default function App() {
         <Text>Compressed image:</Text>
         {!!compressedImage && (
           <Image
-            source={{ uri: 'file://' + compressedImage }}
+            source={{ uri: compressedImage }}
             style={styles.image}
           />
         )}
