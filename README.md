@@ -26,6 +26,24 @@ bundle install
 cd ios
 RCT_NEW_ARCH_ENABLED=1 bundle exec pod install
 ```
+<br />
+
+If you get this error when building iOS:
+```
+/Users/user/Desktop/testApp/ios/Pods/../../node_modules/react-native/scripts/codegen/generate-legacy-interop-components.js: Permission denied
+```
+1. Open a terminal, run this command and copy the result
+```
+command -v node
+```
+2. Open ```.xcode.env``` file in ios directory and replace
+```
+export NODE_BINARY=$(command -v node)
+```
+to
+```
+export NODE_BINARY=~/your/node/path
+```
 
 
 ## Usage
