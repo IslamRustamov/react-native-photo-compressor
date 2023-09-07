@@ -7,3 +7,7 @@ export function compressPhoto(uri: string, quality: number): Promise<string> {
 export function getSizeInBytes(uri: string): Promise<number> {
   return PhotoCompressor.getSizeInBytes(uri);
 }
+
+export function deletePhoto(uri: string): Promise<boolean> {
+  return PhotoCompressor.deletePhoto(uri);
+}
