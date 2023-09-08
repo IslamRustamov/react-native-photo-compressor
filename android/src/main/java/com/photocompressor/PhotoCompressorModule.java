@@ -58,6 +58,17 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
     sizeStrategy.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
   }
 
+  @Override
+  public void deletePhoto(String uri, Promise promise) {
+    DeleteStrategy deleteStrategy = new DeleteStrategy(
+      mContext,
+      uri,
+      promise
+    );
+
+    deleteStrategy.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+  }
+
   private static class SizeStrategy extends GuardedAsyncTask<Void, Void> {
     final ReactApplicationContext mContext;
     final Promise mPromise;
@@ -79,9 +90,50 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
       try {
         File file = new File(mUri.replace("file://", ""));
 
+        if (!file.exists()) {
+          throw new Exception("File does not exist");
+        }
+
         long fileSizeInBytes = file.length();
 
         mPromise.resolve((double) fileSizeInBytes);
+      } catch (Exception e) {
+        mPromise.reject(e);
+      }
+    }
+  }
+
+  private static class DeleteStrategy extends GuardedAsyncTask<Void, Void> {
+    final ReactApplicationContext mContext;
+    final Promise mPromise;
+    final String mUri;
+
+    private DeleteStrategy(
+      ReactApplicationContext context,
+      String uri,
+      Promise promise
+    ) {
+      super(context);
+      mContext = context;
+      mPromise = promise;
+      mUri = uri;
+    }
+
+    @Override
+    protected void doInBackgroundGuarded(Void... params) {
+      try {
+        if (!mUri.contains("/RNPhotoCompressorImages/")) {
+          throw new Exception("Incorrect directory.");
+        }
+
+        File file = new File(mUri.replace("file://", ""));
+
+        if (!file.exists()) {
+          throw new Exception("File does not exist");
+        }
+
+        file.delete();
+        mPromise.resolve(null);
       } catch (Exception e) {
         mPromise.reject(e);
       }

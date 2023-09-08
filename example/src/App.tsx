@@ -1,13 +1,11 @@
 import * as React from 'react';
 
+import { StyleSheet, View, Text, Image, Button } from 'react-native';
 import {
-  StyleSheet,
-  View,
-  Text,
-  Image,
-  Button,
-} from 'react-native';
-import { compressPhoto, getSizeInBytes } from 'react-native-photo-compressor';
+  compressPhoto,
+  deletePhoto,
+  getSizeInBytes,
+} from 'react-native-photo-compressor';
 import { useState } from 'react';
 import { launchCamera } from 'react-native-image-picker';
 
@@ -16,22 +14,35 @@ export default function App() {
   const [compressedImage, setCompressedImage] = useState<string>();
 
   async function openCamera() {
-    const response = await launchCamera({ mediaType: 'photo' });
+    try {
+      const response = await launchCamera({ mediaType: 'photo' });
 
-    if (response.assets && response.assets[0]) {
-      const photo = response.assets[0].uri;
-      const photoSize = await getSizeInBytes(photo!);
-      setImage(photo);
+      if (response.assets && response.assets[0]) {
+        const photo = response.assets[0].uri;
+        const photoSize = await getSizeInBytes(photo!);
+        setImage(photo);
 
-      console.log({ photo });
-      console.log({ photoSize });
+        console.log({ photo });
+        console.log({ photoSize });
 
-      const compressedPhoto = await compressPhoto(photo!, 10);
-      const compressedPhotoSize = await getSizeInBytes(compressedPhoto);
-      setCompressedImage(compressedPhoto);
+        const compressedPhoto = await compressPhoto(photo!, 10);
+        const compressedPhotoSize = await getSizeInBytes(compressedPhoto);
+        setCompressedImage(compressedPhoto);
 
-      console.log({ compressedPhoto });
-      console.log({ compressedPhotoSize });
+        console.log({ compressedPhoto });
+        console.log({ compressedPhotoSize });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async function deleteCompressedPhoto() {
+    try {
+      await deletePhoto(compressedImage!);
+      console.log('Photo is deleted');
+    } catch (e) {
+      console.log(e);
     }
   }
 
@@ -43,14 +54,15 @@ export default function App() {
       </View>
       <View style={styles.separator} />
       <Button title={'Make a photo'} onPress={openCamera} />
+      <Button
+        title={'Delete compressed photo'}
+        onPress={deleteCompressedPhoto}
+      />
       <View style={styles.separator} />
       <View style={styles.block}>
         <Text>Compressed image:</Text>
         {!!compressedImage && (
-          <Image
-            source={{ uri: compressedImage }}
-            style={styles.image}
-          />
+          <Image source={{ uri: compressedImage }} style={styles.image} />
         )}
       </View>
     </View>
