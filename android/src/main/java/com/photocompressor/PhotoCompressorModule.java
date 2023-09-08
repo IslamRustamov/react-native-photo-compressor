@@ -90,6 +90,10 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
       try {
         File file = new File(mUri.replace("file://", ""));
 
+        if (!file.exists()) {
+          throw new Exception("File does not exist");
+        }
+
         long fileSizeInBytes = file.length();
 
         mPromise.resolve((double) fileSizeInBytes);
@@ -119,14 +123,17 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
     protected void doInBackgroundGuarded(Void... params) {
       try {
         if (!mUri.contains("/RNPhotoCompressorImages/")) {
-          mPromise.reject("Incorrect directory.");
+          throw new Exception("Incorrect directory.");
         }
 
         File file = new File(mUri.replace("file://", ""));
 
-        if (!file.delete()) {
-          mPromise.reject("File deletion failed.");
+        if (!file.exists()) {
+          throw new Exception("File does not exist");
         }
+
+        file.delete();
+        mPromise.resolve(null);
       } catch (Exception e) {
         mPromise.reject(e);
       }

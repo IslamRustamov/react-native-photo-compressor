@@ -40,6 +40,7 @@ export default function App() {
   async function deleteCompressedPhoto() {
     try {
       await deletePhoto(compressedImage!);
+      console.log('Photo is deleted');
     } catch (e) {
       console.log(e);
     }

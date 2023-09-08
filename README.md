@@ -26,7 +26,8 @@ bundle install
 cd ios
 RCT_NEW_ARCH_ENABLED=1 bundle exec pod install
 ```
-<br />
+
+## Troubleshooting
 
 If you get this error when building iOS:
 ```
@@ -50,12 +51,13 @@ export NODE_BINARY=~/your/node/path
 
 
 ```js
-import { compressPhoto, getSizeInBytes } from 'react-native-photo-compressor';
+import { compressPhoto, getSizeInBytes, deletePhoto } from 'react-native-photo-compressor';
 
 // ...
 
 const compressedPhoto = await compressPhoto('file://some/photo.png', 50);
 const photoSize = await getSizeInBytes('file://some/photo.png');
+await deletePhoto('file://some/photo.png');
 ```
 
 ## compressPhoto arguments

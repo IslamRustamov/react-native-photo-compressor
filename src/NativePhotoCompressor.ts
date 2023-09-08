@@ -4,7 +4,7 @@ import { TurboModuleRegistry } from 'react-native';
 export interface Spec extends TurboModule {
   compressPhoto(uri: string, quality: number): Promise<string>;
   getSizeInBytes(uri: string): Promise<number>;
-  deletePhoto(uri: string): Promise<boolean>;
+  deletePhoto(uri: string): Promise<void>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('PhotoCompressor');
