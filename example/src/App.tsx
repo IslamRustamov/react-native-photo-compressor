@@ -25,7 +25,12 @@ export default function App() {
         console.log({ photo });
         console.log({ photoSize });
 
-        const compressedPhoto = await compressPhoto(photo!, 10);
+        const compressedPhoto = await compressPhoto(
+          photo!,
+          10,
+          'myFileName',
+          true
+        );
         const compressedPhotoSize = await getSizeInBytes(compressedPhoto);
         setCompressedImage(compressedPhoto);
 
@@ -62,7 +67,12 @@ export default function App() {
       <View style={styles.block}>
         <Text>Compressed image:</Text>
         {!!compressedImage && (
-          <Image source={{ uri: compressedImage }} style={styles.image} />
+          <Image
+            source={{
+              uri: compressedImage + '?' + new Date(),
+            }}
+            style={styles.image}
+          />
         )}
       </View>
     </View>

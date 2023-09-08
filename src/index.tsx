@@ -1,7 +1,12 @@
 const PhotoCompressor = require('./NativePhotoCompressor').default;
 
-export function compressPhoto(uri: string, quality: number): Promise<string> {
-  return PhotoCompressor.compressPhoto(uri, quality);
+export function compressPhoto(
+  uri: string,
+  quality: number,
+  fileName?: string,
+  forceRewrite = false
+): Promise<string> {
+  return PhotoCompressor.compressPhoto(uri, quality, fileName, forceRewrite);
 }
 
 export function getSizeInBytes(uri: string): Promise<number> {

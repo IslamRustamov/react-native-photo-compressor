@@ -4,26 +4,36 @@
 @implementation PhotoCompressor
 RCT_EXPORT_MODULE()
 
-- (void)compressPhoto:(NSString *)uri quality:(double)quality resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+- (void)compressPhoto:(NSString *)uri quality:(double)quality fileName:(NSString *)fileName forceRewrite:(NSNumber *)forceRewrite resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
     try {
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSError *error = nil;
 
         NSString *formattedUri = [uri stringByReplacingOccurrencesOfString:@"file://" withString:@""];
-
-        UIImage *image = [UIImage imageWithContentsOfFile: formattedUri];
-        NSData *compressedImage = UIImageJPEGRepresentation(image, quality/100);
-
-        NSString *uuid = [[NSUUID UUID] UUIDString];
-        NSString *fileName = [uuid stringByAppendingString:@".jpg"];
+        BOOL isForceRewrite = [forceRewrite boolValue];
+        
         NSString *dirPath = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0] stringByAppendingPathComponent:@"RNPhotoCompressorImages"];
-
         if (![fileManager fileExistsAtPath:dirPath]) {
             [fileManager createDirectoryAtPath:dirPath withIntermediateDirectories:NO attributes:nil error:&error];
         }
+        
+        NSString *fileFullName;
+        if ([fileName isKindOfClass:[NSString class]]) {
+            fileFullName = [fileName stringByAppendingString:@".jpg"];
+        } else {
+            NSString *uuid = [[NSUUID UUID] UUIDString];
+            fileFullName = [uuid stringByAppendingString:@".jpg"];
+        }
 
-        NSString *filePath = [dirPath stringByAppendingPathComponent:fileName];
+        NSString *filePath = [dirPath stringByAppendingPathComponent:fileFullName];
+        
+        if ([fileManager fileExistsAtPath:filePath] && !isForceRewrite) {
+            return reject(@"file_exist", @"File with this name already exists", error);
+        }
 
+        UIImage *image = [UIImage imageWithContentsOfFile: formattedUri];
+        NSData *compressedImage = UIImageJPEGRepresentation(image, quality/100);
+        
         [compressedImage writeToFile:filePath atomically:YES];
 
         NSString *result = [@"file://" stringByAppendingString:filePath];

@@ -27,6 +27,40 @@ cd ios
 RCT_NEW_ARCH_ENABLED=1 bundle exec pod install
 ```
 
+## Usage
+
+```js
+import { compressPhoto, getSizeInBytes, deletePhoto } from 'react-native-photo-compressor';
+
+// ...
+
+const compressedPhoto = await compressPhoto('file://some/photo.png', 50);
+const namedCompressedPhoto = await compressPhoto('file://some/photo.png', 50, 'myFileName', true);
+
+const photoSize = await getSizeInBytes('file://some/photo.png');
+await deletePhoto('file://some/photo.png');
+```
+
+## API
+
+### ```compressPhoto(uri: string, quality: number, fileName?: string, forceRewrite?: boolean): Promise<string>```
+Creates a compressed copy of the image at the given ```uri``` inside a ```/RNPhotoCompressorImages``` directory.
+
+| Argument      | Info                                                                                                    |
+|---------------|---------------------------------------------------------------------------------------------------------|
+| uri           | string, path to the photo, must contain *file://* prefix                                                |
+| quality       | number, value from 0 to 100 (smaller number -> more compression)                                        |
+| fileName?     | string, optional name of the compressed photo                                                           |
+| forceRewrite? | boolean, optional flag to force the file to be overwritten if a file with the given name already exists |
+
+### ```getSizeInBytes(uri: string): Promise<number>```
+Returns the size of the file in bytes at the given ```uri```.
+
+### ```deletePhoto(uri: string): Promise<void>;```
+Deletes a compressed image at a given ```uri```.</br>
+Note: Only works for files inside a ```/RNPhotoCompressorImages``` directory.
+
+
 ## Troubleshooting
 
 If you get this error when building iOS:
@@ -46,34 +80,12 @@ to
 export NODE_BINARY=~/your/node/path
 ```
 
-
-## Usage
-
-
-```js
-import { compressPhoto, getSizeInBytes, deletePhoto } from 'react-native-photo-compressor';
-
-// ...
-
-const compressedPhoto = await compressPhoto('file://some/photo.png', 50);
-const photoSize = await getSizeInBytes('file://some/photo.png');
-await deletePhoto('file://some/photo.png');
-```
-
-## compressPhoto arguments
-
-| Argument | Info                                                             |
-|----------|------------------------------------------------------------------|
-| uri      | string, path to the photo, must contain *file://* prefix         |
-| quality  | number, value from 0 to 100 (smaller number -> more compression) |
-
-
 ## Work in progress
 
 - [x] Implement turbo module for Android
 - [x] Implement turbo module for iOS
+- [x] Add more configuration for turbo module (like deleting photos, specific urls and etc.)
 - [ ] Refactor Android turbo module
-- [ ] Add more configuration for Android turbo module (like deleting photos, specific urls and etc.)
 
 ## Contributing
 
