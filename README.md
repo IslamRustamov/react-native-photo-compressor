@@ -35,6 +35,7 @@ import { compressPhoto, getSizeInBytes, deletePhoto } from 'react-native-photo-c
 // ...
 
 const compressedPhoto = await compressPhoto('file://some/photo.png', 50);
+const remoteCompressedPhoto = await compressPhoto('http://remote/photo.png', 50);
 const namedCompressedPhoto = await compressPhoto('file://some/photo.png', 50, 'myFileName', true);
 
 const photoSize = await getSizeInBytes('file://some/photo.png');
@@ -44,7 +45,8 @@ await deletePhoto('file://some/photo.png');
 ## API
 
 ### ```compressPhoto(uri: string, quality: number, fileName?: string, forceRewrite?: boolean): Promise<string>```
-Creates a compressed copy of the image at the given ```uri``` inside a ```/RNPhotoCompressorImages``` directory.
+Creates a compressed copy of the image at the given ```uri``` inside a ```/RNPhotoCompressorImages``` directory.</br>
+Also supports images from web url. In this case ```uri``` should start with ```"http"```.
 
 | Argument      | Info                                                                                                    |
 |---------------|---------------------------------------------------------------------------------------------------------|

@@ -2,6 +2,7 @@ package com.photocompressor;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -18,6 +19,7 @@ import com.facebook.react.bridge.GuardedAsyncTask;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.UUID;
+import java.net.URL;
 
 @ReactModule(name = PhotoCompressorModule.NAME)
 public class PhotoCompressorModule extends NativePhotoCompressorSpec {
@@ -196,7 +198,12 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
       try {
         Uri imageUri = Uri.parse(mUri);
 
-        bitmap = MediaStore.Images.Media.getBitmap(mContext.getContentResolver(), imageUri);
+        if (mUri.startsWith("http")) {
+          URL url = new URL(mUri);
+          bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+        } else {
+          bitmap = MediaStore.Images.Media.getBitmap(mContext.getContentResolver(), imageUri);
+        }
 
         File cacheDir = mContext.getExternalCacheDir();
 

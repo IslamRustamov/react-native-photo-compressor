@@ -31,7 +31,16 @@ RCT_EXPORT_MODULE()
             return reject(@"file_exist", @"File with this name already exists", error);
         }
 
-        UIImage *image = [UIImage imageWithContentsOfFile: formattedUri];
+        UIImage *image;
+        
+        if ([uri hasPrefix:@"http"]) {
+            NSURL *url = [NSURL URLWithString:uri];
+            NSData *data = [NSData dataWithContentsOfURL:url];
+            image = [[UIImage alloc] initWithData:data];
+        } else {
+            image = [UIImage imageWithContentsOfFile: formattedUri];
+        }
+        
         NSData *compressedImage = UIImageJPEGRepresentation(image, quality/100);
         
         [compressedImage writeToFile:filePath atomically:YES];
