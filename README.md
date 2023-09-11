@@ -53,8 +53,9 @@ Creates a compressed copy of the image at the given ```uri``` inside a ```/RNPho
 | fileName?     | string, optional name of the compressed photo                                                           |
 | forceRewrite? | boolean, optional flag to force the file to be overwritten if a file with the given name already exists |
 
-### ```getSizeInBytes(uri: string): Promise<number>```
+### ```getSizeInBytes(uri: string, size?: SizeType): Promise<number>```
 Returns the size of the file in bytes at the given ```uri```.
+```SizeType``` defines the format of the return value and can be either ```"kb"``` or ```"mb"```(default: ```"b"```).
 
 ### ```deletePhoto(uri: string): Promise<void>;```
 Deletes a compressed image at a given ```uri```.</br>
