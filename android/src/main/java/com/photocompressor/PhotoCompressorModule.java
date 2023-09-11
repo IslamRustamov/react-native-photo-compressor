@@ -36,11 +36,13 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
   }
 
   @Override
-  public void compressPhoto(String uri, double quality, Promise promise) {
+  public void compressPhoto(String uri, double quality, String fileName, Boolean forceRewrite, Promise promise) {
     CompressStrategy compressStrategy = new CompressStrategy(
       mContext,
       uri,
       quality,
+      fileName,
+      forceRewrite,
       promise
     );
 
@@ -145,11 +147,15 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
     final Promise mPromise;
     final String mUri;
     final double mQuality;
+    final String mFileName;
+    final Boolean mForceRewrite;
 
     private CompressStrategy(
       ReactApplicationContext context,
       String uri,
       double quality,
+      String fileName,
+      boolean forceRewrite,
       Promise promise
       ) {
       super(context);
@@ -157,6 +163,8 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
       mPromise = promise;
       mUri = uri;
       mQuality = quality;
+      mFileName = fileName;
+      mForceRewrite = forceRewrite;
     }
 
     @Override
@@ -175,8 +183,17 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
             folder.mkdirs();
         }
 
-        String uniqueID = UUID.randomUUID().toString();
-        File fileName = new File(folder, "/" + uniqueID + ".jpeg");
+        File fileName;
+        if (mFileName instanceof String) {
+          fileName = new File(folder, "/" + mFileName + ".jpeg");
+        } else {
+          String uniqueID = UUID.randomUUID().toString();
+          fileName = new File(folder, "/" + uniqueID + ".jpeg");
+        }
+
+        if (fileName.exists() && !mForceRewrite) {
+          throw new Exception("File with this name already exists");
+        }
 
         FileOutputStream out = new FileOutputStream(String.valueOf(fileName));
         bitmap.compress(Bitmap.CompressFormat.JPEG, (int) mQuality, out);
