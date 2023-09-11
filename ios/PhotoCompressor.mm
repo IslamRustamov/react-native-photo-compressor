@@ -43,7 +43,7 @@ RCT_EXPORT_MODULE()
     }
 }
 
-- (void)getSizeInBytes:(NSString *)uri resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+- (void)getSizeInBytes:(NSString *)uri size:(NSString *)size resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
     try {
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSString *formattedUri = [uri stringByReplacingOccurrencesOfString:@"file://" withString:@""];
@@ -55,9 +55,15 @@ RCT_EXPORT_MODULE()
         }
 
         NSDictionary *attrs = [fileManager attributesOfItemAtPath: formattedUri error: &error];
-        UInt32 size = [attrs fileSize];
-        NSNumber *result = @(size);
-
+        UInt32 fileSize = [attrs fileSize];
+        NSNumber *result = @(fileSize);
+        
+        if ([size isEqualToString:@"kb"]) {
+            return resolve(@([result doubleValue] / 1024));
+        } else if ([size isEqualToString:@"mb"]) {
+            return resolve(@([result doubleValue] / 1024 / 1024));
+        }
+        
         resolve(result);
     } catch (NSError *error) {
         reject(@"getSize_failed", @"Getting size failed.", error);

@@ -50,10 +50,11 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
   }
 
   @Override
-  public void getSizeInBytes(String uri, Promise promise) {
+  public void getSizeInBytes(String uri, String size, Promise promise) {
     SizeStrategy sizeStrategy = new SizeStrategy(
       mContext,
       uri,
+      size,
       promise
     );
 
@@ -75,16 +76,25 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
     final ReactApplicationContext mContext;
     final Promise mPromise;
     final String mUri;
+    final String mSize;
 
     private SizeStrategy(
       ReactApplicationContext context,
       String uri,
+      String size,
       Promise promise
     ) {
       super(context);
       mContext = context;
       mPromise = promise;
       mUri = uri;
+      mSize = size;
+    }
+
+    enum SizeType {
+      b,
+      kb,
+      mb
     }
 
     @Override
@@ -98,7 +108,19 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
 
         long fileSizeInBytes = file.length();
 
-        mPromise.resolve((double) fileSizeInBytes);
+        SizeType sizeType = SizeType.valueOf(mSize);
+
+        switch (sizeType) {
+          case kb:
+            mPromise.resolve((double) fileSizeInBytes / 1024);
+            break;
+          case mb:
+            mPromise.resolve((double) fileSizeInBytes / 1024 / 1024);
+            break;
+          default:
+            mPromise.resolve((double) fileSizeInBytes);
+            break;
+        }
       } catch (Exception e) {
         mPromise.reject(e);
       }
