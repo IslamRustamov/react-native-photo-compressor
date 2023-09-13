@@ -60,12 +60,12 @@ Also supports images from web url. In this case ```uri``` should start with ```"
 Creates a compressed copy of the images by uri from a given ```photos``` array inside a ```/RNPhotoCompressorImages``` directory.</br>
 Also supports images from web url. In this case ```uri``` should start with ```"http"```.
 
-| Argument    | Info                                                                                                                                                                                              |
-|-------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| photos      | string[], paths to the photo, must contain *file://* prefix                                                                                                                                       |
-| quality     | number, value from 0 to 100 (smaller number -> more compression)                                                                                                                                  |
-| rejectAll?  | boolean, optional flag indicating whether to reject all if compression of one image fails, otherwise rejected images will return null. Default: ```true```                                        |
-| onProgress? | (progress: number) => void, optional callback that triggers when the image in the array has completed compression. ```progress``` returns the number of elements that have completed compression. |
+| Argument    | Info                                                                                                                                                                                             |
+|-------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| photos      | string[], paths to the photo, must contain *file://* prefix                                                                                                                                      |
+| quality     | number, value from 0 to 100 (smaller number -> more compression)                                                                                                                                 |
+| rejectAll?  | boolean, optional flag indicating whether to reject all if compression of one image fails, otherwise rejected images will return null. Default: ```true```                                       |
+| onProgress? | (progress: number) => void, optional callback that triggers when the image in the array has completed compression. ```progress``` returns the index of elements that have completed compression. |
 
 ### ```getSizeInBytes(uri: string, size?: SizeType): Promise<number>```
 Returns the size of the file in bytes at the given ```uri```.

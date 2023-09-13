@@ -224,7 +224,7 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
 
           res.pushString(compressedImage);
 
-          mContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("compressProgress", (double) i + 1);
+          mContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("compressProgress", (double) i);
         }
 
         mPromise.resolve(res);

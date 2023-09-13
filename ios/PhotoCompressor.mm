@@ -15,12 +15,12 @@ RCT_EXPORT_MODULE()
 
         NSString *formattedUri = [uri stringByReplacingOccurrencesOfString:@"file://" withString:@""];
         BOOL isForceRewrite = [forceRewrite boolValue];
-        
+
         NSString *dirPath = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0] stringByAppendingPathComponent:@"RNPhotoCompressorImages"];
         if (![fileManager fileExistsAtPath:dirPath]) {
             [fileManager createDirectoryAtPath:dirPath withIntermediateDirectories:NO attributes:nil error:&error];
         }
-        
+
         NSString *fileFullName;
         if ([fileName isKindOfClass:[NSString class]]) {
             fileFullName = [fileName stringByAppendingString:@".jpg"];
@@ -30,13 +30,13 @@ RCT_EXPORT_MODULE()
         }
 
         NSString *filePath = [dirPath stringByAppendingPathComponent:fileFullName];
-        
+
         if ([fileManager fileExistsAtPath:filePath] && !isForceRewrite) {
             @throw [NSError errorWithDomain: @"File with this name already exists" code:0 userInfo:nil];
         }
 
         UIImage *image;
-        
+
         if ([uri hasPrefix:@"http"]) {
             NSURL *url = [NSURL URLWithString:uri];
             NSData *data = [NSData dataWithContentsOfURL:url];
@@ -44,13 +44,13 @@ RCT_EXPORT_MODULE()
         } else {
             image = [UIImage imageWithContentsOfFile: formattedUri];
         }
-        
+
         if (image == nil) {
             return nil;
         }
-        
+
         NSData *compressedImage = UIImageJPEGRepresentation(image, quality/100);
-        
+
         [compressedImage writeToFile:filePath atomically:YES];
 
         NSString *result = [@"file://" stringByAppendingString:filePath];
@@ -60,14 +60,14 @@ RCT_EXPORT_MODULE()
             reject(@"compressPhoto_error", @"Photo compression failed.", error);
         }
     }
-    
+
     return nil;
 }
 
 - (void)compressPhoto:(NSString *)uri quality:(double)quality fileName:(NSString *)fileName forceRewrite:(NSNumber *)forceRewrite resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
     try {
         NSString* result = [self getCompressImage:uri quality:quality fileName:fileName forceRewrite:forceRewrite reject:reject];
-        
+
         if ([result isKindOfClass:[NSString class]]) {
             resolve(result);
         } else {
@@ -81,30 +81,30 @@ RCT_EXPORT_MODULE()
 - (void)compressPhotoArray:(NSArray *)photos quality:(double)quality rejectAll:(NSNumber *)rejectAll resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
     NSMutableArray *result = [[NSMutableArray alloc] init];
     BOOL isRejectAll = [rejectAll boolValue];
-    
+
     try {
         for (int i = 0; i < [photos count]; i++){
             NSString *compressedImage = [self getCompressImage:photos[i] quality:quality fileName: nil forceRewrite: nil reject:nil];
-            
+
             if (!compressedImage && isRejectAll) {
                 @throw [NSError errorWithDomain: [NSString stringWithFormat:@"Compression of image at index %d was failed.", i] code:0 userInfo:nil];
             }
-            
+
             [result addObject:[compressedImage isKindOfClass:[NSString class]] ? compressedImage : [NSNull null]];
-            [self sendEventWithName:@"compressProgress" body:@(i + 1)];
+            [self sendEventWithName:@"compressProgress" body:@(i)];
         }
-        
+
         resolve(result);
     } catch (NSError *error) {
         NSFileManager *fileManager = [NSFileManager defaultManager];
-        
+
         for (int i = 0; i < [result count]; i++){
             NSString *formattedUri = [result[i] stringByReplacingOccurrencesOfString: @"file://" withString:@""];
             NSError *error = nil;
 
             [fileManager removeItemAtPath: formattedUri error: &error];
         }
-        
+
         reject(@"compressPhotoArray_error", @"Photo compression failed.", error);
     }
 }
@@ -123,13 +123,13 @@ RCT_EXPORT_MODULE()
         NSDictionary *attrs = [fileManager attributesOfItemAtPath: formattedUri error: &error];
         UInt32 fileSize = [attrs fileSize];
         NSNumber *result = @(fileSize);
-        
+
         if ([size isEqualToString:@"kb"]) {
             return resolve(@([result doubleValue] / 1024));
         } else if ([size isEqualToString:@"mb"]) {
             return resolve(@([result doubleValue] / 1024 / 1024));
         }
-        
+
         resolve(result);
     } catch (NSError *error) {
         reject(@"getSize_error", @"Getting size failed.", error);
