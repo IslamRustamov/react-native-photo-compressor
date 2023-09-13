@@ -8,8 +8,15 @@ export interface Spec extends TurboModule {
     fileName?: string,
     forceRewrite?: boolean
   ): Promise<string>;
+  compressPhotoArray(
+    photos: string[],
+    quality: number,
+    rejectAll?: boolean
+  ): Promise<string[]>;
   getSizeInBytes(uri: string, size?: string): Promise<number>;
   deletePhoto(uri: string): Promise<void>;
+  addListener(eventName: string): void;
+  removeListeners(count: number): void;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('PhotoCompressor');

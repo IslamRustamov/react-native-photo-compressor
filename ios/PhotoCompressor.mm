@@ -4,7 +4,11 @@
 @implementation PhotoCompressor
 RCT_EXPORT_MODULE()
 
-- (void)compressPhoto:(NSString *)uri quality:(double)quality fileName:(NSString *)fileName forceRewrite:(NSNumber *)forceRewrite resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+- (NSArray<NSString *> *)supportedEvents {
+  return @[@"compressProgress"];
+}
+
+- (NSString *)getCompressImage:(NSString *)uri quality:(double)quality fileName:(NSString *)fileName forceRewrite:(NSNumber *)forceRewrite reject:(RCTPromiseRejectBlock)reject {
     try {
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSError *error = nil;
@@ -28,7 +32,7 @@ RCT_EXPORT_MODULE()
         NSString *filePath = [dirPath stringByAppendingPathComponent:fileFullName];
         
         if ([fileManager fileExistsAtPath:filePath] && !isForceRewrite) {
-            return reject(@"file_exist", @"File with this name already exists", error);
+            @throw [NSError errorWithDomain: @"File with this name already exists" code:0 userInfo:nil];
         }
 
         UIImage *image;
@@ -41,14 +45,67 @@ RCT_EXPORT_MODULE()
             image = [UIImage imageWithContentsOfFile: formattedUri];
         }
         
+        if (image == nil) {
+            return nil;
+        }
+        
         NSData *compressedImage = UIImageJPEGRepresentation(image, quality/100);
         
         [compressedImage writeToFile:filePath atomically:YES];
 
         NSString *result = [@"file://" stringByAppendingString:filePath];
+        return result;
+    } catch (NSError *error) {
+        if (reject) {
+            reject(@"compressPhoto_error", @"Photo compression failed.", error);
+        }
+    }
+    
+    return nil;
+}
+
+- (void)compressPhoto:(NSString *)uri quality:(double)quality fileName:(NSString *)fileName forceRewrite:(NSNumber *)forceRewrite resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+    try {
+        NSString* result = [self getCompressImage:uri quality:quality fileName:fileName forceRewrite:forceRewrite reject:reject];
+        
+        if ([result isKindOfClass:[NSString class]]) {
+            resolve(result);
+        } else {
+            @throw [NSError errorWithDomain: @"compressPhoto error" code:0 userInfo:nil];
+        }
+    } catch (NSError *error) {
+        reject(@"compressPhoto_error", @"Photo compression failed.", error);
+    }
+}
+
+- (void)compressPhotoArray:(NSArray *)photos quality:(double)quality rejectAll:(NSNumber *)rejectAll resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+    NSMutableArray *result = [[NSMutableArray alloc] init];
+    BOOL isRejectAll = [rejectAll boolValue];
+    
+    try {
+        for (int i = 0; i < [photos count]; i++){
+            NSString *compressedImage = [self getCompressImage:photos[i] quality:quality fileName: nil forceRewrite: nil reject:nil];
+            
+            if (!compressedImage && isRejectAll) {
+                @throw [NSError errorWithDomain: [NSString stringWithFormat:@"Compression of image at index %d was failed.", i] code:0 userInfo:nil];
+            }
+            
+            [result addObject:[compressedImage isKindOfClass:[NSString class]] ? compressedImage : [NSNull null]];
+            [self sendEventWithName:@"compressProgress" body:@(i + 1)];
+        }
+        
         resolve(result);
     } catch (NSError *error) {
-        reject(@"compressPhoto_failed", @"Photo compression failed.", error);
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        
+        for (int i = 0; i < [result count]; i++){
+            NSString *formattedUri = [result[i] stringByReplacingOccurrencesOfString: @"file://" withString:@""];
+            NSError *error = nil;
+
+            [fileManager removeItemAtPath: formattedUri error: &error];
+        }
+        
+        reject(@"compressPhotoArray_error", @"Photo compression failed.", error);
     }
 }
 
@@ -75,7 +132,7 @@ RCT_EXPORT_MODULE()
         
         resolve(result);
     } catch (NSError *error) {
-        reject(@"getSize_failed", @"Getting size failed.", error);
+        reject(@"getSize_error", @"Getting size failed.", error);
     }
 }
 
@@ -99,7 +156,7 @@ RCT_EXPORT_MODULE()
 
         resolve(nil);
     } catch (NSError *error) {
-        reject(@"deletePhoto_failed", @"File deletion failed.", error);
+        reject(@"deletePhoto_error", @"File deletion failed.", error);
     }
 }
 

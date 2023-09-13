@@ -3,11 +3,12 @@ import * as React from 'react';
 import { StyleSheet, View, Text, Image, Button } from 'react-native';
 import {
   compressPhoto,
+  compressPhotoArray,
   deletePhoto,
   getSizeInBytes,
 } from 'react-native-photo-compressor';
 import { useState } from 'react';
-import { launchCamera } from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 
 export default function App() {
   const [image, setImage] = useState<string>();
@@ -42,6 +43,40 @@ export default function App() {
     }
   }
 
+  async function openImageLibrary() {
+    try {
+      const response = await launchImageLibrary({ selectionLimit: 0 });
+      if (response.assets) {
+        const currentIndex = 0;
+        const imageArray: string[] = response.assets.map(
+          (img) => img.uri || ''
+        );
+
+        const photoSize = await getSizeInBytes(imageArray[currentIndex]);
+        setImage(imageArray[currentIndex]);
+
+        console.log(imageArray[currentIndex]);
+        console.log({ photoSize });
+
+        const compressedImageArray = await compressPhotoArray(
+          imageArray,
+          10,
+          true,
+          (event) => console.log(event)
+        );
+        const compressedPhotoSize = await getSizeInBytes(
+          compressedImageArray[currentIndex]
+        );
+        setCompressedImage(compressedImageArray[currentIndex]);
+
+        console.log({ compressedImageArray });
+        console.log({ compressedPhotoSize });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   async function deleteCompressedPhoto() {
     try {
       await deletePhoto(compressedImage!);
@@ -57,13 +92,17 @@ export default function App() {
         <Text>Uncompressed image:</Text>
         {!!image && <Image source={{ uri: image }} style={styles.image} />}
       </View>
-      <View style={styles.separator} />
-      <Button title={'Make a photo'} onPress={openCamera} />
-      <Button
-        title={'Delete compressed photo'}
-        onPress={deleteCompressedPhoto}
-      />
-      <View style={styles.separator} />
+      <View>
+        <Button title={'Make a photo'} onPress={openCamera} />
+        <Button
+          title={'Compress images from library'}
+          onPress={openImageLibrary}
+        />
+        <Button
+          title={'Delete compressed photo'}
+          onPress={deleteCompressedPhoto}
+        />
+      </View>
       <View style={styles.block}>
         <Text>Compressed image:</Text>
         {!!compressedImage && (
@@ -83,14 +122,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-around',
+    marginVertical: 5,
   },
   block: {
-    flex: 1,
     alignItems: 'center',
-  },
-  separator: {
-    height: 50,
   },
   image: {
     width: 200,
