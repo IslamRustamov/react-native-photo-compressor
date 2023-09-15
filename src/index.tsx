@@ -1,8 +1,8 @@
-import { NativeEventEmitter, NativeEventSubscription } from 'react-native';
+import { NativeEventEmitter, type NativeEventSubscription } from 'react-native';
 
 const PhotoCompressor = require('./NativePhotoCompressor').default;
 
-const CompressPhotoArrayEventEmitter = new NativeEventEmitter(PhotoCompressor);
+const CompressPhotosEventEmitter = new NativeEventEmitter(PhotoCompressor);
 
 export function compressPhoto(
   uri: string,
@@ -13,17 +13,18 @@ export function compressPhoto(
   return PhotoCompressor.compressPhoto(uri, quality, fileName, forceRewrite);
 }
 
-export async function compressPhotoArray(
+export async function compressPhotos(
   photos: string[],
   quality: number,
   rejectAll = true,
   onProgress?: (progress: number) => void
 ): Promise<string[]> {
   let subscription: NativeEventSubscription;
+  let result: string[];
 
   try {
     if (onProgress) {
-      subscription = CompressPhotoArrayEventEmitter.addListener(
+      subscription = CompressPhotosEventEmitter.addListener(
         'compressProgress',
         (event: number) => {
           onProgress(event);
@@ -31,14 +32,17 @@ export async function compressPhotoArray(
       );
     }
 
-    return await PhotoCompressor.compressPhotoArray(photos, quality, rejectAll);
+    result = await PhotoCompressor.compressPhotos(photos, quality, rejectAll);
   } catch (e) {
     console.log(e);
   } finally {
+    // @ts-ignore
     if (subscription) {
       subscription.remove();
     }
   }
+  // @ts-ignore
+  return result;
 }
 
 export function getSizeInBytes(uri: string, size = 'b'): Promise<number> {

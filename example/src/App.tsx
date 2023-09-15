@@ -3,7 +3,7 @@ import * as React from 'react';
 import { StyleSheet, View, Text, Image, Button } from 'react-native';
 import {
   compressPhoto,
-  compressPhotoArray,
+  compressPhotos,
   deletePhoto,
   getSizeInBytes,
 } from 'react-native-photo-compressor';
@@ -45,27 +45,30 @@ export default function App() {
 
   async function openImageLibrary() {
     try {
-      const response = await launchImageLibrary({ selectionLimit: 0 });
+      const response = await launchImageLibrary({
+        mediaType: 'photo',
+        selectionLimit: 0,
+      });
       if (response.assets) {
         const currentIndex = 0;
         const imageArray: string[] = response.assets.map(
           (img) => img.uri || ''
         );
 
-        const photoSize = await getSizeInBytes(imageArray[currentIndex]);
+        const photoSize = await getSizeInBytes(imageArray[currentIndex] || '');
         setImage(imageArray[currentIndex]);
 
         console.log(imageArray[currentIndex]);
         console.log({ photoSize });
 
-        const compressedImageArray = await compressPhotoArray(
+        const compressedImageArray = await compressPhotos(
           imageArray,
           10,
           true,
           (event) => console.log(event)
         );
         const compressedPhotoSize = await getSizeInBytes(
-          compressedImageArray[currentIndex]
+          compressedImageArray[currentIndex] || ''
         );
         setCompressedImage(compressedImageArray[currentIndex]);
 

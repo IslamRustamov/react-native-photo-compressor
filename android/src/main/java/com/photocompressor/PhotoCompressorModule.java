@@ -42,7 +42,7 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
 
   @Override
   public void compressPhoto(String uri, double quality, String fileName, Boolean forceRewrite, Promise promise) {
-    CompressStrategy compressStrategy = new CompressStrategy(
+    CompressPhotoStrategy compressPhotoStrategy = new CompressPhotoStrategy(
       mContext,
       uri,
       quality,
@@ -51,12 +51,12 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
       promise
     );
 
-    compressStrategy.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    compressPhotoStrategy.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
   }
 
   @Override
-  public void compressPhotoArray(ReadableArray photos, double quality, Boolean rejectAll, Promise promise) {
-    CompressPhotoArrayStrategy compressPhotoArrayStrategy = new CompressPhotoArrayStrategy(
+  public void compressPhotos(ReadableArray photos, double quality, Boolean rejectAll, Promise promise) {
+    CompressPhotosStrategy compressPhotosStrategy = new CompressPhotosStrategy(
       mContext,
       photos,
       quality,
@@ -64,7 +64,7 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
       promise
     );
 
-    compressPhotoArrayStrategy.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    compressPhotosStrategy.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
   }
 
   @Override
@@ -96,7 +96,7 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
   @Override
   public void removeListeners(double count) {}
 
-  private static String getCompressImage(
+  private static String compressImage(
     ReactApplicationContext mContext,
     String mUri,
     double mQuality,
@@ -150,7 +150,7 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
       return null;
   }
 
-  private static class CompressStrategy extends GuardedAsyncTask<Void, Void> {
+  private static class CompressPhotoStrategy extends GuardedAsyncTask<Void, Void> {
     final ReactApplicationContext mContext;
     final Promise mPromise;
     final String mUri;
@@ -158,7 +158,7 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
     final String mFileName;
     final Boolean mForceRewrite;
 
-    private CompressStrategy(
+    private CompressPhotoStrategy(
       ReactApplicationContext context,
       String uri,
       double quality,
@@ -178,7 +178,7 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
     @Override
     protected void doInBackgroundGuarded(Void... params) {
       try {
-        String res = getCompressImage(mContext, mUri, mQuality, mFileName, mForceRewrite, mPromise);
+        String res = compressImage(mContext, mUri, mQuality, mFileName, mForceRewrite, mPromise);
 
         mPromise.resolve(res);
       } catch (Exception e) {
@@ -187,14 +187,14 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
     }
   }
 
-  private static class CompressPhotoArrayStrategy extends GuardedAsyncTask<Void, Void> {
+  private static class CompressPhotosStrategy extends GuardedAsyncTask<Void, Void> {
     final ReactApplicationContext mContext;
     final Promise mPromise;
     final ReadableArray mPhotos;
     final double mQuality;
     final Boolean mRejectAll;
 
-    private CompressPhotoArrayStrategy(
+    private CompressPhotosStrategy(
       ReactApplicationContext context,
       ReadableArray photos,
       double quality,
@@ -217,7 +217,7 @@ public class PhotoCompressorModule extends NativePhotoCompressorSpec {
         for (int i = 0; i < mPhotos.size(); i++) {
           String mUri = mPhotos.getString(i);
 
-          String compressedImage = getCompressImage(mContext, mUri, mQuality, null, null, null);
+          String compressedImage = compressImage(mContext, mUri, mQuality, null, null, null);
           if (compressedImage == null && mRejectAll) {
             throw new Exception(String.format("Compression of image at index %s was failed.", i));
           }

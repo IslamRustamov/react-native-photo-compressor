@@ -8,7 +8,7 @@ export interface Spec extends TurboModule {
     fileName?: string,
     forceRewrite?: boolean
   ): Promise<string>;
-  compressPhotoArray(
+  compressPhotos(
     photos: string[],
     quality: number,
     rejectAll?: boolean
