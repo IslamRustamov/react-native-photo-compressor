@@ -30,13 +30,14 @@ RCT_NEW_ARCH_ENABLED=1 bundle exec pod install
 ## Usage
 
 ```js
-import { compressPhoto, getSizeInBytes, deletePhoto } from 'react-native-photo-compressor';
+import { compressPhoto, compressPhotos, getSizeInBytes, deletePhoto } from 'react-native-photo-compressor';
 
 // ...
 
 const compressedPhoto = await compressPhoto('file://some/photo.png', 50);
 const remoteCompressedPhoto = await compressPhoto('http://remote/photo.png', 50);
 const namedCompressedPhoto = await compressPhoto('file://some/photo.png', 50, 'myFileName', true);
+const compressedPhotos = await compressPhotos(['file://some/photo_1.png', 'file://some/photo_2.png'], 50);
 
 const photoSize = await getSizeInBytes('file://some/photo.png');
 await deletePhoto('file://some/photo.png');
@@ -48,12 +49,23 @@ await deletePhoto('file://some/photo.png');
 Creates a compressed copy of the image at the given ```uri``` inside a ```/RNPhotoCompressorImages``` directory.</br>
 Also supports images from web url. In this case ```uri``` should start with ```"http"```.
 
-| Argument      | Info                                                                                                    |
-|---------------|---------------------------------------------------------------------------------------------------------|
-| uri           | string, path to the photo, must contain *file://* prefix                                                |
-| quality       | number, value from 0 to 100 (smaller number -> more compression)                                        |
-| fileName?     | string, optional name of the compressed photo                                                           |
-| forceRewrite? | boolean, optional flag to force the file to be overwritten if a file with the given name already exists |
+| Argument      | Info                                                                                                                          |
+|---------------|-------------------------------------------------------------------------------------------------------------------------------|
+| uri           | string, path to the photo, must contain *file://* prefix                                                                      |
+| quality       | number, value from 0 to 100 (smaller number -> more compression)                                                              |
+| fileName?     | string, optional name of the compressed photo                                                                                 |
+| forceRewrite? | boolean, optional flag to force the file to be overwritten if a file with the given name already exists. Default: ```false``` |
+
+### ```compressPhotos(photos: string[], quality: number, onProgress?: (progress: number) => void): Promise<string[]>```
+Creates a compressed copy of the images by uri from a given ```photos``` array inside a ```/RNPhotoCompressorImages``` directory.</br>
+Also supports images from web url. In this case ```uri``` should start with ```"http"```.
+
+| Argument    | Info                                                                                                                                                                                             |
+|-------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| photos      | string[], paths to the photo, must contain *file://* prefix                                                                                                                                      |
+| quality     | number, value from 0 to 100 (smaller number -> more compression)                                                                                                                                 |
+| rejectAll?  | boolean, optional flag indicating whether to reject all if compression of one image fails, otherwise rejected images will return null. Default: ```true```                                       |
+| onProgress? | (progress: number) => void, optional callback that triggers when the image in the array has completed compression. ```progress``` returns the index of elements that have completed compression. |
 
 ### ```getSizeInBytes(uri: string, size?: SizeType): Promise<number>```
 Returns the size of the file in bytes at the given ```uri```.
