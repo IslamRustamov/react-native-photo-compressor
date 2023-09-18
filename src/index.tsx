@@ -1,5 +1,3 @@
-import { SizeType } from './NativePhotoCompressor';
-
 const PhotoCompressor = require('./NativePhotoCompressor').default;
 
 export function compressPhoto(
